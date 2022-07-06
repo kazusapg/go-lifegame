@@ -3,25 +3,44 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"strconv"
 	"time"
 )
 
-type Grid [initialRows][initialCols]string
+type Grid [][]string
 
 const (
-	initialRows = 30
-	initialCols = 30
-	life        = "x"
-	nolife      = " "
+	maxLength = 30
+	life      = "x"
+	nolife    = " "
 )
 
 func main() {
-	grid := Grid{}
-	initializeGrid(&grid)
+	var gridLength int
+	for {
+		var inputLength string
+		fmt.Println("Please input grid length.")
+		fmt.Print(">")
+		fmt.Scan(&inputLength)
+		i, err := strconv.Atoi(inputLength)
+		if err != nil {
+			fmt.Println("The length must be number.")
+			continue
+		}
+		if i < 1 || i > maxLength {
+			fmt.Println("The length must be greater than 1 and less than 30.")
+			continue
+		}
+		gridLength = i
+		break
+	}
+
+	grid := make(Grid, gridLength)
+	initializeGrid(grid, gridLength)
 	printGrid(grid)
 	for repeat := 0; repeat < 100; repeat++ {
-		nextGrid := Grid{}
-		next(grid, &nextGrid)
+		nextGrid := deepCopySlice(grid, gridLength)
+		next(grid, nextGrid, gridLength)
 		grid = nextGrid
 		fmt.Printf("Generation %d\n", repeat+1)
 		printGrid(grid)
@@ -29,10 +48,14 @@ func main() {
 	}
 }
 
-func initializeGrid(grid *Grid) {
+func initializeGrid(grid Grid, gridLength int) {
+	for i := 0; i < gridLength; i++ {
+		grid[i] = make([]string, gridLength)
+	}
+
 	rand.Seed(time.Now().UnixNano())
-	for i := 0; i < initialRows; i++ {
-		for j := 0; j < initialCols; j++ {
+	for i := 0; i < gridLength; i++ {
+		for j := 0; j < gridLength; j++ {
 			switch rand.Intn(2) {
 			case 0:
 				grid[i][j] = life
@@ -43,10 +66,10 @@ func initializeGrid(grid *Grid) {
 	}
 }
 
-func next(currentGrid Grid, nextGrid *Grid) {
-	for y := 0; y < initialRows; y++ {
-		for x := 0; x < initialCols; x++ {
-			if isNextAlive(currentGrid, y, x) {
+func next(currentGrid Grid, nextGrid Grid, gridLength int) {
+	for y := 0; y < gridLength; y++ {
+		for x := 0; x < gridLength; x++ {
+			if isNextAlive(currentGrid, y, x, gridLength) {
 				nextGrid[y][x] = life
 			} else {
 				nextGrid[y][x] = nolife
@@ -55,7 +78,7 @@ func next(currentGrid Grid, nextGrid *Grid) {
 	}
 }
 
-func isNextAlive(currentGrid Grid, y, x int) bool {
+func isNextAlive(currentGrid Grid, y, x, gridLength int) bool {
 	aroundCount := 0
 	for offsetY := -1; offsetY <= 1; offsetY++ {
 		for offsetX := -1; offsetX <= 1; offsetX++ {
@@ -64,10 +87,10 @@ func isNextAlive(currentGrid Grid, y, x int) bool {
 			}
 			currentY := y + offsetY
 			currentX := x + offsetX
-			if currentY < 0 || currentY >= initialRows {
+			if currentY < 0 || currentY >= gridLength {
 				continue
 			}
-			if currentX < 0 || currentX >= initialCols {
+			if currentX < 0 || currentX >= gridLength {
 				continue
 			}
 			if currentGrid[currentY][currentX] == life {
@@ -100,4 +123,14 @@ func printGrid(grid Grid) {
 		fmt.Println(row)
 	}
 	fmt.Println("")
+}
+
+func deepCopySlice(originalGrid Grid, gridLength int) Grid {
+	grid := make(Grid, gridLength)
+	for i := 0; i < gridLength; i++ {
+		dst := make([]string, gridLength)
+		grid[i] = dst
+		copy(grid[i], originalGrid[i])
+	}
+	return grid
 }
