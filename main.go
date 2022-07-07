@@ -35,10 +35,29 @@ func main() {
 		break
 	}
 
+	var repeatNumber int
+	for {
+		var inputRepeat string
+		fmt.Println("Please input repeat number.")
+		fmt.Print(">")
+		fmt.Scan(&inputRepeat)
+		i, err := strconv.Atoi(inputRepeat)
+		if err != nil {
+			fmt.Println("The length must be number.")
+			continue
+		}
+		if i < 1 {
+			fmt.Println("The length must be greater than 1.")
+			continue
+		}
+		repeatNumber = i
+		break
+	}
+
 	grid := make(Grid, gridLength)
 	initializeGrid(grid, gridLength)
 	printGrid(grid)
-	for repeat := 0; repeat < 100; repeat++ {
+	for repeat := 0; repeat < repeatNumber; repeat++ {
 		nextGrid := deepCopySlice(grid, gridLength)
 		next(grid, nextGrid, gridLength)
 		grid = nextGrid
