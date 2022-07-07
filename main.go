@@ -28,7 +28,7 @@ func main() {
 			continue
 		}
 		if i < 1 || i > maxLength {
-			fmt.Println("The length must be greater than 1 and less than 30.")
+			fmt.Println("The length must be greater than or equal to 1 and less than or equal to 30.")
 			continue
 		}
 		gridLength = i
@@ -47,7 +47,7 @@ func main() {
 			continue
 		}
 		if i < 1 {
-			fmt.Println("The length must be greater than 1.")
+			fmt.Println("The length must be greater than or equal to 1.")
 			continue
 		}
 		repeatNumber = i
